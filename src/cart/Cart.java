@@ -14,7 +14,7 @@ public class Cart {
     /**
      * Load the known items sold into the cache
      */
-    private void loadInventoryCache() {
+    protected void loadInventoryCache() {
         inventory.add(new InventoryItem("apple", 60));
         inventory.add(new InventoryItem("orange", 25));
     }
@@ -43,10 +43,29 @@ public class Cart {
         int total = 0;
         for (Map.Entry<InventoryItem, Integer> entry : basket.entrySet()) {
             InventoryItem invItem = entry.getKey();
-            total += invItem.getPriceInPence() * entry.getValue();
+            total += getPriceForInventoryItems(invItem, entry.getValue());
         }
 
         NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(Locale.UK);
         return currencyFormatter.format(total/100.0);
     }
+
+    /**
+     * Get the total price for the number of items including any offers
+     * @param invItem  type of item
+     * @param numItems number of items of this type
+     * @return price in pence
+     */
+    protected int getPriceForInventoryItems(InventoryItem invItem, Integer numItems) {
+        if(invItem.checkName("apple")) {
+            // buy one, get one free on Apples
+            return invItem.getPriceInPence() * (numItems - (int)((numItems+0.5)/2));
+        }
+        if (invItem.checkName("orange")) {
+            // 3 for the price of 2 on Oranges
+            return invItem.getPriceInPence() * (numItems - (numItems/3));
+        }
+        return invItem.getPriceInPence() * numItems;
+    }
 }
+
